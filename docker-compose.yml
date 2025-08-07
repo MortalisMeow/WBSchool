@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - postgres
+      - kafka
+    environment:
+      DATABASE_URL: postgres://user:password@postgres:5432/postgres?sslmode=disable
+      KAFKA_BROKERS: kafka:9092
+    ports:
+      - "8080:8080"

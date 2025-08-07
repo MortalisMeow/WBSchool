@@ -1,27 +1,34 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
+	"os"
 )
 
-func title(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("BugBerries"))
-
-}
-
-func order_info(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Введите ID вашего заказа"))
-
-}
-
 func main() {
+	db, err := sql.Open("pgx", os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		log.Fatal("Ошибка подключения к БД:", err)
+	}
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", title)
-	mux.HandleFunc("/order", order_info)
+	mux.HandleFunc("/", order)
+	mux.HandleFunc("/order", orderInfo)
+
+	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
 	log.Println("Запуск веб-сервера на http://localhost:8081")
-	err := http.ListenAndServe("localhost:8081", mux)
-	log.Fatal(err)
+	if err := http.ListenAndServe(":8081", mux); err != nil {
+		log.Fatalf("Ошибка сервера: %v", err)
+	}
 
 }
