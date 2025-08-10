@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BugBerries</title>
+  <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+<div class="slogan">BugBerries</div>
+
+<div class="center-box">
+  <h1>Введите ID заказа</h1>
+  <form action="/search" method="GET">
+    <label for="orderId" class="visually-hidden">ID заказа</label>
+    <input type="text" id="orderId" name="order_uid" placeholder="" required>
+    <button type="submit">Найти</button>
+  </form>
+</div>
+</body>
+</html>

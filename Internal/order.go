@@ -1,6 +1,25 @@
 package Internal
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
+
+type Order struct {
+	Orders
+	Payment
+	Delivery
+	Items []Item `json:"items"`
+}
+
+type OrderCache struct {
+	cacheOrders map[string]*Order
+	Storage
+}
+
+type Storage struct {
+	Db *sql.DB
+}
 
 type Orders struct {
 	OrderUid          string    `json:"order_uid" db:"order_uid"`
@@ -17,7 +36,7 @@ type Orders struct {
 }
 
 type Payment struct {
-	PaymentID    int    `json:"payment_id" db:"payment_id"`
+	PaymentID    int    `json:"-" db:"payment_id"`
 	Transaction  string `json:"transaction" db:"transaction"`
 	RequestID    string `json:"request_id,omitempty" db:"request_id"`
 	Currency     string `json:"currency" db:"currency"`
@@ -28,12 +47,12 @@ type Payment struct {
 	DeliveryCost int64  `json:"delivery_cost" db:"delivery_cost"`
 	GoodsTotal   int    `json:"goods_total" db:"goods_total"`
 	CustomFee    int    `json:"custom_fee" db:"custom_fee"`
-	OrderUID     string `json:"order_uid" db:"order_uid"`
+	OrderUID     string `json:"-" db:"order_uid"`
 }
 
 type Delivery struct {
-	DeliveryID int    `json:"delivery_id" db:"delivery_id"`
-	OrderUID   string `json:"order_uid" db:"order_uid"`
+	DeliveryID int    `json:"-" db:"delivery_id"`
+	OrderUID   string `json:"-" db:"order_uid"`
 	Name       string `json:"name" db:"name"`
 	Phone      string `json:"phone" db:"phone"`
 	Zip        string `json:"zip" db:"zip"`
@@ -45,7 +64,7 @@ type Delivery struct {
 
 type Item struct {
 	ChrtID     int64  `json:"chrt_id" db:"chrt_id"`
-	OrderUID   string `json:"order_uid" db:"order_uid"`
+	OrderUID   string `json:"-" db:"order_uid"`
 	Price      int64  `json:"price" db:"price"`
 	Rid        string `json:"rid" db:"rid"`
 	Name       string `json:"name" db:"name"`

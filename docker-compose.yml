@@ -1,7 +1,6 @@
-version: '3.8'
 services:
   postgres:
-    image: postgres:16
+    image: postgres
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -13,11 +12,17 @@ services:
 
   app:
     build: .
+    image: wbschool
     depends_on:
       - postgres
       - kafka
+
     environment:
-      DATABASE_URL: postgres://user:password@postgres:5432/postgres?sslmode=disable
-      KAFKA_BROKERS: kafka:9092
+      DATABASE_URL: "host=localhost port=5432 user=user dbname=postgres password=password sslmode=disable"
+
+    command: postgres -c ssl=off
     ports:
       - "8080:8080"
+
+volumes:
+  postgres_data:

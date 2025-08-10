@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Заказ {{.OrderId}}</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Данные заказа</h1>
+
+    <div class="order-info">
+        <p><strong>ID:</strong> {{.OrderId}}</p>
+        <p><strong>Трек-номер:</strong> {{.TrackNumber}}</p>
+        <p><strong>Статус:</strong> {{.Status}}</p>
+
+    </div>
+
+    <a href="/">Назад к поиску</a>
+</div>
+</body>
+</html>
