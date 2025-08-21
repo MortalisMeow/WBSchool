@@ -1,8 +1,10 @@
-FROM golang:1.20.4
+FROM golang:latest
 
 WORKDIR /app
 
-COPY main.go .
-RUN go build -o wbschool main.go
+COPY . .
+
+RUN go build -o wbschool ./cmd/
 
 CMD ["./wbschool"]
+

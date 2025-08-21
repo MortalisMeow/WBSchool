@@ -1,28 +1,62 @@
+version: '3.8'
+
 services:
   postgres:
-    image: postgres
+    image: postgres:14
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d wb_school" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     environment:
-      POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: wb_school
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+
   app:
     build: .
     image: wbschool
     depends_on:
-      - postgres
-      - kafka
-
+      postgres:
+        condition: service_healthy
+      kafka:
+        condition: service_started
     environment:
-      DATABASE_URL: "host=localhost port=5432 user=user dbname=postgres password=password sslmode=disable"
-
-    command: postgres -c ssl=off
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/wb_school?sslmode=disable
+      - KAFKA_BROKERS=kafka:9092
     ports:
-      - "8080:8080"
+      - "8081:8081"
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+  kafka_data:

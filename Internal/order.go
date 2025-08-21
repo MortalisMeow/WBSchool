@@ -1,24 +1,14 @@
 package Internal
 
 import (
-	"database/sql"
 	"time"
 )
 
 type Order struct {
-	Orders
-	Payment
-	Delivery
-	Items []Item `json:"items"`
-}
-
-type OrderCache struct {
-	cacheOrders map[string]*Order
-	Storage
-}
-
-type Storage struct {
-	Db *sql.DB
+	Orders   `json:"orders"`
+	Payment  `json:"payment"`
+	Delivery `json:"deliveries"`
+	Items    []Item `json:"items"`
 }
 
 type Orders struct {
@@ -63,15 +53,16 @@ type Delivery struct {
 }
 
 type Item struct {
-	ChrtID     int64  `json:"chrt_id" db:"chrt_id"`
-	OrderUID   string `json:"-" db:"order_uid"`
-	Price      int64  `json:"price" db:"price"`
-	Rid        string `json:"rid" db:"rid"`
-	Name       string `json:"name" db:"name"`
-	Sale       int64  `json:"sale" db:"sale"`
-	Size       string `json:"size" db:"size"`
-	TotalPrice int64  `json:"total_price" db:"total_price"`
-	NmID       int64  `json:"nm_id" db:"nm_id"`
-	Brand      string `json:"brand" db:"brand"`
-	Status     int    `json:"status" db:"status"`
+	ChrtID      int64  `json:"chrt_id" db:"chrt_id"`
+	TrackNumber string `json:"track_number" db:"track_number"`
+	Price       int64  `json:"price" db:"price"`
+	Rid         string `json:"rid" db:"rid"`
+	Name        string `json:"name" db:"name"`
+	Sale        int64  `json:"sale" db:"sale"`
+	Size        string `json:"size" db:"size"`
+	TotalPrice  int64  `json:"total_price" db:"total_price"`
+	NmID        int64  `json:"nm_id" db:"nm_id"`
+	Brand       string `json:"brand" db:"brand"`
+	Status      int    `json:"status" db:"status"`
+	OrderUID    string `json:"-" db:"order_uid"`
 }
