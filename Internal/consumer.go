@@ -3,6 +3,7 @@ package Internal
 import (
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"log"
+	"time"
 )
 
 type KafkaConsumer struct {
@@ -13,13 +14,13 @@ type KafkaConsumer struct {
 
 func NewConsumer(handler *Handler, address string, topic string) (*KafkaConsumer, error) {
 	cfg := &kafka.ConfigMap{
-		"bootstrap.servers":        address,
-		"group.id":                 "wb-school-group",
-		"session.timeout.ms":       6000,
-		"enable.auto.offset.store": false,
-		"enable.auto.commit":       true,
-		"auto.commit.interval.ms":  5000,
-		"heartbeat.interval.ms":    2000,
+		"bootstrap.servers":               address,
+		"group.id":                        "wb-school-group",
+		"session.timeout.ms":              6000,
+		"enable.auto.commit":              false,
+		"enable.auto.offset.store":        false,
+		"isolation.level":                 "read_committed",
+		"go.application.rebalance.enable": true,
 	}
 
 	c, err := kafka.NewConsumer(cfg)
@@ -43,18 +44,30 @@ func (c *KafkaConsumer) Start() {
 		}
 		kafkaMsg, err := c.consumer.ReadMessage(-1)
 		if err != nil {
-			log.Println("Error receiving message", err)
+			log.Println("Ошибка чтения сообщения", err)
 		}
 		if kafkaMsg == nil {
 			continue
 		}
 
-		if err = c.handler.HandleMessageFrom(kafkaMsg.Value); err != nil {
-			log.Println("Error handling message", err)
+		var lastErr error
+		for attempt := 1; attempt <= 3; attempt++ {
+			err = c.handler.HandleMessageFrom(kafkaMsg.Value)
+			if err == nil {
+				break
+			}
+			lastErr = err
+			log.Printf("Попытка %d провалена: %v", attempt, err)
+			time.Sleep(time.Duration(attempt) * time.Second)
+		}
+
+		if err != nil {
+			log.Printf("Все попотки провалились: %v", lastErr)
 			continue
 		}
+
 		if _, err = c.consumer.StoreMessage(kafkaMsg); err != nil {
-			log.Println("Error storing message", err)
+			log.Println("Не удалось сохранить сообщение", err)
 			continue
 		}
 	}

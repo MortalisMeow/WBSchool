@@ -138,7 +138,7 @@ func (s *Storage) Create(order Order) error {
 			return fmt.Errorf("into items failed: %w", err)
 		}
 	}
-	log.Println("Order created successfully: %s", order.Orders.OrderUid)
+	log.Println("Успешный коммит для БД", order.Orders.OrderUid)
 	return tx.Commit()
 }
 
@@ -169,6 +169,29 @@ func (s *Storage) GetFromDb(OrderUid string) (Order, error) {
 		return order, fmt.Errorf("failed to get items: %w", err)
 	}
 
-	log.Println("Order отправлен: %s", order.Orders.OrderUid)
+	log.Println("Order отправлен из БД: %s", order.Orders.OrderUid)
 	return order, nil
+}
+
+func (s *Storage) GetAllOrders() ([]Order, error) {
+	var orders []Order
+
+	orderUidsQuery := `SELECT order_uid FROM orders`
+	var orderUids []string
+	err := s.db.Select(&orderUids, orderUidsQuery)
+	if err != nil {
+		return nil, fmt.Errorf("Не удалось получить список order_uid: %w", err)
+	}
+
+	for _, orderUid := range orderUids {
+		order, err := s.GetFromDb(orderUid)
+		if err != nil {
+			log.Printf("Не удалось получить заказ из базы %s: %v", orderUid, err)
+			continue
+		}
+		orders = append(orders, order)
+	}
+
+	log.Printf("Было получено из БД %d заказов", len(orders))
+	return orders, nil
 }

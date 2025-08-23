@@ -32,7 +32,7 @@ func NewProducer(address string, topic string) (*KafkaProducer, error) {
 func (p *KafkaProducer) SendOrder(order Order) error {
 	jsonData, err := json.Marshal(order)
 	if err != nil {
-		return fmt.Errorf("failed to marshal order: %w", err)
+		return fmt.Errorf("Ошибка сериализации: %w", err)
 	}
 
 	msg := &kafka.Message{

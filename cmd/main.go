@@ -25,7 +25,7 @@ func main() {
 	}
 	defer db.Close()
 
-	err = db.Ping() //пингуем бд
+	err = db.Ping()
 
 	storage := Internal.NewStorage(db)
 	if err := storage.RunMigrations(); err != nil {
@@ -37,8 +37,9 @@ func main() {
 	}
 	log.Println("Подключаемся к Kafka:", kafkaBrokers)
 
-	cache := Internal.NewOrderCache(200 * time.Millisecond)
+	cache := Internal.NewOrderCache(30 * time.Second)
 	handler := Internal.NewHandler(db, cache)
+	handler.RestoreCacheFromDB()
 
 	go func() {
 		producer, err := Internal.NewProducer("kafka:9092", "orders-topic")
@@ -58,7 +59,7 @@ func main() {
 			if err := producer.SendOrder(order); err != nil {
 				log.Println("Ошибка отправки заказа: %v", err)
 			} else {
-				log.Println("Заказ отправлен: %s", order.Orders.OrderUid)
+				log.Println("Заказ отправлен из producer: %s", order.Orders.OrderUid)
 			}
 		}
 	}()
@@ -73,7 +74,7 @@ func main() {
 		c.Start()
 
 	}()
-	r := gin.Default() //создание роутера
+	r := gin.Default()
 	log.Println("Создан роутер")
 	r.LoadHTMLFiles(
 		"./ui/html/index.html",

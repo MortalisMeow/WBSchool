@@ -41,7 +41,6 @@ func (c *OrderCache) AddToCache(order *Order) error {
 	defer c.mu.Unlock()
 
 	c.Cache[order.Orders.OrderUid] = order
-
 	time.AfterFunc(c.ttl, func() {
 		c.mu.Lock()
 		defer c.mu.Unlock()
