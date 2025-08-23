@@ -33,19 +33,19 @@ func (c *OrderCache) AddToCache(order *Order) error {
 		return fmt.Errorf("cannot add nil order to cache")
 	}
 
-	if order.OrderUid == "" {
+	if order.Orders.OrderUid == "" {
 		return fmt.Errorf("order_uid is empty, cannot add to cache")
 	}
 
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.Cache[order.OrderUid] = order
+	c.Cache[order.Orders.OrderUid] = order
 
 	time.AfterFunc(c.ttl, func() {
 		c.mu.Lock()
 		defer c.mu.Unlock()
-		delete(c.Cache, order.OrderUid)
+		delete(c.Cache, order.Orders.OrderUid)
 	})
 	return nil
 }

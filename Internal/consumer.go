@@ -14,11 +14,12 @@ type KafkaConsumer struct {
 func NewConsumer(handler *Handler, address string, topic string) (*KafkaConsumer, error) {
 	cfg := &kafka.ConfigMap{
 		"bootstrap.servers":        address,
-		"group.id":                 "myGroup",
-		"session.timeout.ms":       5000,
+		"group.id":                 "wb-school-group",
+		"session.timeout.ms":       6000,
 		"enable.auto.offset.store": false,
-		"enable.auto.commit":       true, // значения локальных сохраняются автоматом
+		"enable.auto.commit":       true,
 		"auto.commit.interval.ms":  5000,
+		"heartbeat.interval.ms":    2000,
 	}
 
 	c, err := kafka.NewConsumer(cfg)

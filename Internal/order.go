@@ -7,7 +7,7 @@ import (
 type Order struct {
 	Orders   `json:"orders"`
 	Payment  `json:"payment"`
-	Delivery `json:"deliveries"`
+	Delivery `json:"delivery"`
 	Items    []Item `json:"items"`
 }
 
@@ -37,12 +37,12 @@ type Payment struct {
 	DeliveryCost int64  `json:"delivery_cost" db:"delivery_cost"`
 	GoodsTotal   int    `json:"goods_total" db:"goods_total"`
 	CustomFee    int    `json:"custom_fee" db:"custom_fee"`
-	OrderUID     string `json:"-" db:"order_uid"`
+	OrderUid     string `json:"-" db:"order_uid"`
 }
 
 type Delivery struct {
 	DeliveryID int    `json:"-" db:"delivery_id"`
-	OrderUID   string `json:"-" db:"order_uid"`
+	OrderUid   string `json:"-" db:"order_uid"`
 	Name       string `json:"name" db:"name"`
 	Phone      string `json:"phone" db:"phone"`
 	Zip        string `json:"zip" db:"zip"`
@@ -53,6 +53,7 @@ type Delivery struct {
 }
 
 type Item struct {
+	ID          int64  `json:"-" db:"id"`
 	ChrtID      int64  `json:"chrt_id" db:"chrt_id"`
 	TrackNumber string `json:"track_number" db:"track_number"`
 	Price       int64  `json:"price" db:"price"`
@@ -64,5 +65,5 @@ type Item struct {
 	NmID        int64  `json:"nm_id" db:"nm_id"`
 	Brand       string `json:"brand" db:"brand"`
 	Status      int    `json:"status" db:"status"`
-	OrderUID    string `json:"-" db:"order_uid"`
+	OrderUid    string `json:"-" db:"order_uid"`
 }

@@ -1,0 +1,93 @@
+body {
+    background: #7c1af8;
+    margin: 0;
+    font-family: Arial, serif;
+    color: #333;
+}
+
+.slogan {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.container {
+    background: white;
+    width: 80%;
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+h1 {
+    color: #7c1af8;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h3 {
+    color: #7c1af8;
+    border-bottom: 2px solid #7c1af8;
+    padding-bottom: 5px;
+    margin-top: 25px;
+}
+
+.order-info {
+    line-height: 1.6;
+}
+
+.order-info p {
+    margin: 10px 0;
+    padding: 5px 0;
+}
+
+.order-info strong {
+    color: #7c1af8;
+    min-width: 150px;
+    display: inline-block;
+}
+
+.item {
+    background: #f8f5ff;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border-left: 4px solid #7c1af8;
+}
+
+.item p {
+    margin: 5px 0;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 30px;
+    padding: 10px 20px;
+    background: #7c1af8;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.3s;
+}
+
+.back-link:hover {
+    background: #6a0dad;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        margin: 20px auto;
+        padding: 20px;
+    }
+
+    .order-info strong {
+        min-width: 120px;
+    }
+}

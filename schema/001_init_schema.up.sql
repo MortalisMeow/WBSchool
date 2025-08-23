@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS payments (
 );
 
 
-CREATE TABLE IF NOT EXISTS deliveries (
+CREATE TABLE IF NOT EXISTS delivery (
                                           delivery_id SERIAL PRIMARY KEY,
                                           order_uid   VARCHAR(255) NOT NULL REFERENCES orders(order_uid) ON DELETE CASCADE,
                                           name        VARCHAR(255) NOT NULL,
@@ -43,8 +43,10 @@ CREATE TABLE IF NOT EXISTS deliveries (
 
 
 CREATE TABLE IF NOT EXISTS items (
+                                     id SERIAL PRIMARY KEY,
                                      chrt_id      BIGINT NOT NULL,
-                                     order_uid    VARCHAR(255) NOT NULL REFERENCES orders(order_uid) ON DELETE CASCADE,
+                                     order_uid TEXT NOT NULL REFERENCES orders(order_uid) ON DELETE CASCADE,
+                                     track_number VARCHAR(255) NOT NULL,
                                      price        BIGINT NOT NULL,
                                      rid          VARCHAR(255) NOT NULL,
                                      name         VARCHAR(255) NOT NULL,
@@ -53,6 +55,6 @@ CREATE TABLE IF NOT EXISTS items (
                                      total_price  BIGINT NOT NULL,
                                      nm_id        BIGINT NOT NULL,
                                      brand        VARCHAR(255) NOT NULL,
-                                     status       INTEGER NOT NULL,
-                                     PRIMARY KEY (chrt_id, order_uid)
+                                     status       INTEGER NOT NULL
+
 );
