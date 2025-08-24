@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"log"
 	"math/rand"
+	"os"
 	"time"
 )
 
@@ -40,10 +42,9 @@ func (p *KafkaProducer) SendOrder(order Order) error {
 			Topic:     &p.topic,
 			Partition: kafka.PartitionAny,
 		},
-		Key:   []byte(order.Orders.OrderUid),
+		Key:   []byte(order.OrderUid),
 		Value: jsonData,
 	}
-
 	return p.producer.Produce(msg, nil)
 }
 
@@ -51,7 +52,7 @@ func (p *KafkaProducer) Close() {
 	p.producer.Close()
 }
 
-func generateOrderUID() string {
+func generateOrderUid() string {
 	part1 := fmt.Sprintf("%x", rand.Intn(99999999))
 	part2 := fmt.Sprintf("%x", rand.Intn(99999999))
 	part3 := fmt.Sprintf("%x", rand.Intn(9999))
@@ -65,13 +66,12 @@ func generateTrackNumber() string {
 func GenerateRandomOrder() Order {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 
-	orderUid := generateOrderUID()
+	orderUid := generateOrderUid()
 	trackNumber := generateTrackNumber()
 
-	var internalSignature *string
+	var internalSignature string
 	if rand.Intn(2) == 0 {
-		sig := fmt.Sprintf("sig-%d", rand.Intn(1000))
-		internalSignature = &sig
+		internalSignature = fmt.Sprintf("sig-%d", rand.Intn(1000))
 	}
 
 	var requestID string
@@ -86,21 +86,20 @@ func GenerateRandomOrder() Order {
 	brands := []string{"Vivienne Sabo", "Maybelline", "L'Oreal", "NYX", "MAC"}
 
 	return Order{
-		Orders: Orders{
-			OrderUid:          orderUid,
-			TrackNumber:       trackNumber,
-			Entry:             "WBIL",
-			Locale:            "en",
-			InternalSignature: internalSignature,
-			CustomerID:        fmt.Sprintf("customer-%d", rand.Intn(1000)),
-			DeliveryService:   "meest",
-			Shardkey:          fmt.Sprintf("shard-%d", rand.Intn(10)),
-			SmID:              rand.Intn(100),
-			DateCreated:       time.Now(),
-			OofShard:          fmt.Sprintf("oof-%d", rand.Intn(10)),
-		},
+		OrderUid:          orderUid,
+		TrackNumber:       trackNumber,
+		Entry:             "WBIL",
+		Locale:            "en",
+		InternalSignature: internalSignature,
+		CustomerID:        fmt.Sprintf("customer-%d", rand.Intn(1000)),
+		DeliveryService:   "meest",
+		Shardkey:          fmt.Sprintf("%d", rand.Intn(10)),
+		SmID:              rand.Intn(100),
+		DateCreated:       time.Now(),
+		OofShard:          fmt.Sprintf("%d", rand.Intn(10)),
+
 		Payment: Payment{
-			Transaction:  fmt.Sprintf("transaction-%s", orderUid),
+			Transaction:  orderUid,
 			RequestID:    requestID,
 			Currency:     "USD",
 			Provider:     "wbpay",
@@ -139,4 +138,29 @@ func GenerateRandomOrder() Order {
 			},
 		},
 	}
+}
+
+func LoadSampleOrder(file string) (Order, error) {
+	var order Order
+
+	data, err := os.ReadFile(file)
+	if err != nil {
+		return order, err
+	}
+
+	if err := json.Unmarshal(data, &order); err != nil {
+		log.Printf("Ошибка парсинга JSON: %v", err)
+		return order, err
+	}
+
+	return order, nil
+}
+
+func (p *KafkaProducer) SendSampleOrder(file string) error {
+	order, err := LoadSampleOrder(file)
+	if err != nil {
+		return err
+	}
+	log.Printf("OrderUid: %s", order.OrderUid)
+	return p.SendOrder(order)
 }

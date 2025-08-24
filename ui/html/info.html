@@ -1,40 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Заказ {{.Orders.OrderUid}}</title>
-    <link rel="stylesheet" href="/static/css/order.css">
+    <title>Заказ {{.OrderUid}}</title>
+    <link rel="stylesheet" href="../static/css/order.css">
 </head>
 <body>
 <div class="container">
     <h1>Данные заказа</h1>
 
     <div class="order-info">
-        <p><strong>Order UID:</strong> {{.Orders.OrderUid}}</p>
-        <p><strong>Трек-номер:</strong> {{.Orders.TrackNumber}}</p>
-        <p><strong>Сервис доставки:</strong> {{.Orders.DeliveryService}}</p>
-        <p><strong>Дата создания:</strong> {{.Orders.DateCreated}}</p>
+        <p><strong>Order UID:</strong> {{.OrderUid}}</p>
+        <p><strong>Трек-номер:</strong> {{.TrackNumber}}</p>
+        <p><strong>Сервис доставки:</strong> {{.DeliveryService}}</p>
+        <p><strong>Дата создания:</strong> {{.DateCreated}}</p>
 
         <h3>Доставка</h3>
         <p><strong>Имя:</strong> {{.Delivery.Name}}</p>
         <p><strong>Телефон:</strong> {{.Delivery.Phone}}</p>
-        <p><strong>Адрес:</strong> {{.Delivery.City}}, {{.Delivery.Address}}</p>
+        <p><strong>Почтовый индекс:</strong> {{.Delivery.Zip}}</p>
+        <p><strong>Город:</strong> {{.Delivery.City}}</p>
+        <p><strong>Адрес:</strong> {{.Delivery.Address}}</p>
         <p><strong>Регион:</strong> {{.Delivery.Region}}</p>
         <p><strong>Почта:</strong> {{.Delivery.Email}}</p>
 
         <h3>Оплата</h3>
-        <p><strong>Транзакция:</strong> {{.Payment.Transaction}}</p>
         <p><strong>Валюта:</strong> {{.Payment.Currency}}</p>
-        <p><strong>Провайдер:</strong> {{.Payment.Provider}}</p>
         <p><strong>Сумма:</strong> {{.Payment.Amount}}</p>
+        <p><strong>Дата оплаты:</strong> {{.Payment.PaymentDt}}</p>
         <p><strong>Банк:</strong> {{.Payment.Bank}}</p>
+        <p><strong>Стоимость доставки:</strong> {{.Payment.DeliveryCost}}</p>
+        <p><strong>Всего товаров:</strong> {{.Payment.GoodsTotal}}</p>
 
         <h3>Товары ({{len .Items}})</h3>
         {{range .Items}}
             <div class="item">
+                <p><strong>Трек-номер:</strong> {{.TrackNumber}}</p>
                 <p><strong>Наименование:</strong> {{.Name}}</p>
                 <p><strong>Цена:</strong> {{.Price}}</p>
+                <p><strong>Скидка:</strong> {{.Sale}}</p>
                 <p><strong>Бренд:</strong> {{.Brand}}</p>
-                <p><strong>Размер:</strong> {{.Size}}</p>
                 <p><strong>Статус:</strong> {{.Status}}</p>
             </div>
         {{end}}

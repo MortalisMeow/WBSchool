@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -41,7 +42,24 @@ func main() {
 	handler := Internal.NewHandler(db, cache)
 	handler.RestoreCacheFromDB()
 
+	var wg sync.WaitGroup
+
+	wg.Add(1)
 	go func() {
+		defer wg.Done()
+		c, err := Internal.NewConsumer(handler, "kafka:9092", "orders-topic")
+		if err != nil {
+			log.Println("Ошибка создания consumer:", err)
+		}
+		log.Println("Consumer запущен")
+		c.Start()
+		defer c.Stop()
+
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		producer, err := Internal.NewProducer("kafka:9092", "orders-topic")
 		if err != nil {
 			log.Println("Ошибка создания producer: %v", err)
@@ -54,26 +72,22 @@ func main() {
 		ticker := time.NewTicker(10 * time.Second)
 		defer ticker.Stop()
 
+		if err := producer.SendSampleOrder("sample_order.json"); err != nil {
+			log.Printf("Ошибка отправки тестового заказа: %v", err)
+		} else {
+			log.Println("Отправка тестового заказа прошла успешно")
+		}
+
 		for range ticker.C {
 			order := Internal.GenerateRandomOrder()
 			if err := producer.SendOrder(order); err != nil {
 				log.Println("Ошибка отправки заказа: %v", err)
 			} else {
-				log.Println("Заказ отправлен из producer: %s", order.Orders.OrderUid)
+				log.Println("Заказ отправлен из producer______________:", order.OrderUid)
 			}
 		}
 	}()
 
-	go func() {
-		c, err := Internal.NewConsumer(handler, "kafka:9092", "orders-topic")
-		if err != nil {
-			log.Println("Ошибка создания consumer:", err)
-		}
-
-		log.Println("Consumer запущен")
-		c.Start()
-
-	}()
 	r := gin.Default()
 	log.Println("Создан роутер")
 	r.LoadHTMLFiles(
@@ -98,8 +112,12 @@ func main() {
 
 	r.Static("/static", "./ui/static")
 
-	log.Println("Запуск веб-сервера на http://localhost:8081")
-	if err := r.Run(":8081"); err != nil {
-		log.Fatalf("Ошибка сервера: %v", err)
-	}
+	go func() {
+		log.Println("Запуск веб-сервера на http://localhost:8081")
+		if err := r.Run(":8081"); err != nil {
+			log.Fatalf("Ошибка сервера: %v", err)
+		}
+	}()
+
+	wg.Wait()
 }

@@ -5,30 +5,27 @@ import (
 )
 
 type Order struct {
-	Orders   `json:"orders"`
-	Payment  `json:"payment"`
-	Delivery `json:"delivery"`
-	Items    []Item `json:"items"`
-}
-
-type Orders struct {
 	OrderUid          string    `json:"order_uid" db:"order_uid"`
 	TrackNumber       string    `json:"track_number" db:"track_number"`
 	Entry             string    `json:"entry" db:"entry"`
 	Locale            string    `json:"locale" db:"locale"`
-	InternalSignature *string   `json:"internal_signature,omitempty" db:"internal_signature"`
+	InternalSignature string    `json:"internal_signature" db:"internal_signature"` // Убрал * так как в JSON есть ""
 	CustomerID        string    `json:"customer_id" db:"customer_id"`
 	DeliveryService   string    `json:"delivery_service" db:"delivery_service"`
 	Shardkey          string    `json:"shardkey" db:"shardkey"`
 	SmID              int       `json:"sm_id" db:"sm_id"`
 	DateCreated       time.Time `json:"date_created" db:"date_created"`
 	OofShard          string    `json:"oof_shard" db:"oof_shard"`
+
+	Payment  Payment  `json:"payment" db:"-"`
+	Delivery Delivery `json:"delivery" db:"-"`
+	Items    []Item   `json:"items" db:"-"`
 }
 
 type Payment struct {
 	PaymentID    int    `json:"-" db:"payment_id"`
 	Transaction  string `json:"transaction" db:"transaction"`
-	RequestID    string `json:"request_id,omitempty" db:"request_id"`
+	RequestID    string `json:"request_id" db:"request_id"`
 	Currency     string `json:"currency" db:"currency"`
 	Provider     string `json:"provider" db:"provider"`
 	Amount       int    `json:"amount" db:"amount"`

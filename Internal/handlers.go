@@ -29,23 +29,24 @@ func (h *Handler) HandleMessageFrom(message []byte) error {
 		return err
 	}
 
-	if order.Orders.OrderUid == "" {
+	if order.OrderUid == "" {
 		log.Println("Пустое значение order_uid: %v")
 
 	}
+	log.Println("Попытка добавить в заказ в ______________БД:", order.OrderUid)
 	if err := h.db.Create(order); err != nil {
 		log.Println("Не удалось создать заказ: %v", err)
 		return err
 	}
 
-	log.Printf("Успешно создан заказ_______________________: %s", order.Orders.OrderUid)
+	log.Printf("Успешно создан заказ_______________________: %s", order.OrderUid)
 
 	if err := h.cache.AddToCache(&order); err != nil {
-		log.Println("Не удалось добавить заказ в кэш: %s", &order.Orders.OrderUid)
+		log.Println("Не удалось добавить заказ в кэш: %s", &order.OrderUid)
 		return nil
 	}
 
-	log.Printf("Добавлен в ______________________________ КЭШ: %s", order.Orders.OrderUid)
+	log.Printf("Добавлен в ____________________________ КЭШ: %s", order.OrderUid)
 	return nil
 }
 
@@ -69,7 +70,7 @@ func (h *Handler) GetOrder(c *gin.Context) {
 		} else {
 			source = "КЭША"
 			since := time.Since(start)
-			log.Printf("!!!!!!Получаю заказ ____ %s ________ из %s _________ time: %v", orderUid, source, since)
+			log.Printf("ВРЕМЯ ПОЛУЧЕНИЯ ЗАКАЗА %s ИЗ +++++++ %s ++++++++++%v", source, orderUid, since)
 			c.HTML(http.StatusOK, "info.html", order)
 			return
 		}
@@ -85,7 +86,7 @@ func (h *Handler) GetOrder(c *gin.Context) {
 	}
 	source = "БАЗЫ ДАННЫХ"
 	since := time.Since(start)
-	log.Printf("!!!!!!Беру заказ ___ %s ______________ из %s _________ time: %v", orderUid, source, since)
+	log.Printf("ВРЕМЯ ПОЛУЧЕНИЯ ЗАКАЗА %s ИЗ +++++++ %s ++++++++++%v", source, orderUid, since)
 	if err := h.cache.AddToCache(&order); err != nil {
 		log.Printf("Failed to add cache order: %v", err)
 	}
@@ -102,7 +103,7 @@ func (h *Handler) RestoreCacheFromDB() {
 
 	for _, order := range orders {
 		if err := h.cache.AddToCache(&order); err != nil {
-			log.Printf("Не получилось добавить заказ %s в кэш: %v", order.Orders.OrderUid, err)
+			log.Printf("Не получилось добавить заказ %s в кэш: %v", order.OrderUid, err)
 			continue
 		}
 

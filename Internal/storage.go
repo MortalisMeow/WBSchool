@@ -52,7 +52,7 @@ func (s *Storage) Create(order Order) error {
 		ordersTable)
 
 	_, err = tx.Exec(createOrderQuery,
-		order.Orders.OrderUid,
+		order.OrderUid,
 		order.TrackNumber,
 		order.Entry,
 		order.Locale,
@@ -76,17 +76,17 @@ func (s *Storage) Create(order Order) error {
 		paymentTable)
 
 	_, err = tx.Exec(createPaymentQuery,
-		order.Transaction,
-		order.RequestID,
-		order.Currency,
-		order.Provider,
-		order.Amount,
-		order.PaymentDt,
-		order.Bank,
-		order.DeliveryCost,
-		order.GoodsTotal,
-		order.CustomFee,
-		order.Orders.OrderUid,
+		order.Payment.Transaction,
+		order.Payment.RequestID,
+		order.Payment.Currency,
+		order.Payment.Provider,
+		order.Payment.Amount,
+		order.Payment.PaymentDt,
+		order.Payment.Bank,
+		order.Payment.DeliveryCost,
+		order.Payment.GoodsTotal,
+		order.Payment.CustomFee,
+		order.OrderUid,
 	)
 	if err != nil {
 		return fmt.Errorf("into payments failed: %w", err)
@@ -99,14 +99,14 @@ func (s *Storage) Create(order Order) error {
 		deliveryTable)
 
 	_, err = tx.Exec(createDeliveryQuery,
-		order.Orders.OrderUid,
-		order.Name,
-		order.Phone,
-		order.Zip,
-		order.City,
-		order.Address,
-		order.Region,
-		order.Email,
+		order.OrderUid,
+		order.Delivery.Name,
+		order.Delivery.Phone,
+		order.Delivery.Zip,
+		order.Delivery.City,
+		order.Delivery.Address,
+		order.Delivery.Region,
+		order.Delivery.Email,
 	)
 	if err != nil {
 		return fmt.Errorf("into delivery failed: %w", err)
@@ -121,7 +121,7 @@ func (s *Storage) Create(order Order) error {
 
 	for _, item := range order.Items {
 		_, err = tx.Exec(createItemQuery,
-			order.Orders.OrderUid,
+			order.OrderUid,
 			item.ChrtID,
 			item.TrackNumber,
 			item.Price,
@@ -138,7 +138,7 @@ func (s *Storage) Create(order Order) error {
 			return fmt.Errorf("into items failed: %w", err)
 		}
 	}
-	log.Println("Успешный коммит для БД", order.Orders.OrderUid)
+	log.Println("Успешный коммит ___________________________:", order.OrderUid)
 	return tx.Commit()
 }
 
@@ -146,7 +146,7 @@ func (s *Storage) GetFromDb(OrderUid string) (Order, error) {
 	var order Order
 
 	query := `SELECT * FROM orders WHERE order_uid = $1`
-	err := s.db.Get(&order.Orders, query, OrderUid)
+	err := s.db.Get(&order, query, OrderUid)
 	if err != nil {
 		return order, fmt.Errorf("failed to get order: %w", err)
 	}
@@ -169,7 +169,7 @@ func (s *Storage) GetFromDb(OrderUid string) (Order, error) {
 		return order, fmt.Errorf("failed to get items: %w", err)
 	}
 
-	log.Println("Order отправлен из БД: %s", order.Orders.OrderUid)
+	log.Println("Order отправлен из БД: %s", order.OrderUid)
 	return order, nil
 }
 
