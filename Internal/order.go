@@ -9,7 +9,7 @@ type Order struct {
 	TrackNumber       string    `json:"track_number" db:"track_number"`
 	Entry             string    `json:"entry" db:"entry"`
 	Locale            string    `json:"locale" db:"locale"`
-	InternalSignature string    `json:"internal_signature" db:"internal_signature"` // Убрал * так как в JSON есть ""
+	InternalSignature string    `json:"internal_signature" db:"internal_signature"`
 	CustomerID        string    `json:"customer_id" db:"customer_id"`
 	DeliveryService   string    `json:"delivery_service" db:"delivery_service"`
 	Shardkey          string    `json:"shardkey" db:"shardkey"`
