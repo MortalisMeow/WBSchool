@@ -4,11 +4,10 @@ import (
 	"sync"
 )
 
-// MessageHandlerMock — мок для MessageHandler.
 type MessageHandlerMock struct {
 	mu sync.Mutex
 
-	HandleMessageFromFunc func(message []byte) error
+	HandleMessageFromFunc  func(message []byte) error
 	HandleMessageFromCalls [][]byte
 }
 

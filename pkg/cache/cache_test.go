@@ -61,7 +61,6 @@ func TestOrderCache_eviction(t *testing.T) {
 		order := &domain.Order{Orders: domain.Orders{OrderUid: uid}}
 		_ = c.Set(order)
 	}
-	// oldest 'a' should be evicted
 	_, err := c.Get("a")
 	if err == nil {
 		t.Error("expected 'a' to be evicted")
@@ -78,7 +77,6 @@ func TestOrderCache_Update_move_to_front(t *testing.T) {
 	for _, uid := range []string{"first", "second", "third"} {
 		_ = c.Set(&domain.Order{Orders: domain.Orders{OrderUid: uid}})
 	}
-	// update "first" so it moves to front; then add "fourth" — "second" should be evicted
 	_ = c.Set(&domain.Order{Orders: domain.Orders{OrderUid: "first"}})
 	_ = c.Set(&domain.Order{Orders: domain.Orders{OrderUid: "fourth"}})
 	_, errSecond := c.Get("second")
@@ -101,7 +99,6 @@ func TestOrderCache_Clear(t *testing.T) {
 	}
 }
 
-// Проверка, что порядок полей не ломает LRU (используем реальную структуру с датой)
 func TestOrderCache_Order_with_date(t *testing.T) {
 	c := NewOrderCache(2)
 	order := &domain.Order{
