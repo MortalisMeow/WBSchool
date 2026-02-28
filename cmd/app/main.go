@@ -22,11 +22,11 @@ import (
 )
 
 const (
-	serverPort         = ":8081"
-	kafkaTopic         = "orders-topic"
-	cacheCapacity      = 30
-	producerInterval   = 10 * time.Second
-	shutdownTimeout    = 15 * time.Second
+	serverPort          = ":8081"
+	kafkaTopic          = "orders-topic"
+	cacheCapacity       = 30
+	producerInterval    = 10 * time.Second
+	shutdownTimeout     = 15 * time.Second
 	consumerWaitTimeout = 5 * time.Second
 )
 

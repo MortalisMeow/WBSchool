@@ -9,11 +9,11 @@ import (
 type OrderStorageMock struct {
 	mu sync.Mutex
 
-	CreateFunc     func(order domain.Order) error
-	CreateCalls    []domain.Order
-	GetFromDbFunc  func(orderUid string) (domain.Order, error)
-	GetFromDbCalls []string
-	GetAllOrdersFunc func() ([]domain.Order, error)
+	CreateFunc        func(order domain.Order) error
+	CreateCalls       []domain.Order
+	GetFromDbFunc     func(orderUid string) (domain.Order, error)
+	GetFromDbCalls    []string
+	GetAllOrdersFunc  func() ([]domain.Order, error)
 	GetAllOrdersCalls int
 }
 

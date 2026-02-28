@@ -14,11 +14,11 @@ type MessageHandler interface {
 }
 
 type Consumer struct {
-	reader *kafka.Reader
+	reader  *kafka.Reader
 	handler MessageHandler
-	ctx    context.Context
-	cancel context.CancelFunc
-	done   chan struct{}
+	ctx     context.Context
+	cancel  context.CancelFunc
+	done    chan struct{}
 }
 
 func NewConsumer(handler MessageHandler, address string, topic string) (*Consumer, error) {

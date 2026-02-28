@@ -3,9 +3,10 @@ package postgres
 import (
 	"WBSchool/Internal/domain"
 	"fmt"
-	"github.com/jmoiron/sqlx"
 	"log/slog"
 	"os"
+
+	"github.com/jmoiron/sqlx"
 )
 
 const (

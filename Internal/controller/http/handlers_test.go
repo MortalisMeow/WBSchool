@@ -1,8 +1,8 @@
 package http
 
 import (
-	"WBSchool/Internal/domain"
 	"WBSchool/Internal/controller/http/mocks"
+	"WBSchool/Internal/domain"
 	"encoding/json"
 	"errors"
 	"net/http"
