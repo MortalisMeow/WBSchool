@@ -3,10 +3,12 @@ package http
 import (
 	"WBSchool/Internal/domain"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 type OrderStorage interface {
@@ -38,10 +40,9 @@ func (h *Handler) HandleMessageFrom(message []byte) error {
 		slog.Error("deserialization error", "error", err)
 		return err
 	}
-
-	if order.Orders.OrderUid == "" {
-		slog.Warn("empty order_uid")
-
+	if err := domain.ValidateOrder(&order); err != nil {
+		slog.Warn("order validation failed", "error", err, "order_uid", order.Orders.OrderUid)
+		return err
 	}
 	if err := h.db.Create(order); err != nil {
 		slog.Error("failed to create order", "error", err)
@@ -62,11 +63,13 @@ func (h *Handler) HandleMessageFrom(message []byte) error {
 func (h *Handler) GetOrder(c *gin.Context) {
 	orderUid := c.Param("order_uid")
 	start := time.Now()
-	if orderUid == "" {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": "empty order id",
-		})
-		slog.Warn("empty order id")
+	if err := domain.ValidateOrderUid(orderUid); err != nil {
+		code := http.StatusBadRequest
+		if errors.Is(err, domain.ErrOrderUidEmpty) {
+			code = http.StatusBadRequest
+		}
+		c.AbortWithStatusJSON(code, gin.H{"error": err.Error()})
+		slog.Warn("invalid order_uid", "order_uid", orderUid, "error", err)
 		return
 	}
 
