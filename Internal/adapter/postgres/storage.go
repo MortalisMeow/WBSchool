@@ -1,9 +1,10 @@
-package Internal
+package postgres
 
 import (
+	"WBSchool/Internal/domain"
 	"fmt"
 	"github.com/jmoiron/sqlx"
-	"log"
+	"log/slog"
 	"os"
 )
 
@@ -33,11 +34,11 @@ func (s *Storage) RunMigrations() error {
 		return fmt.Errorf("failed to execute migration: %w", err)
 	}
 
-	log.Println("Migrations applied successfully")
+	slog.Info("migrations applied successfully")
 	return nil
 }
 
-func (s *Storage) Create(order Order) error {
+func (s *Storage) Create(order domain.Order) error {
 	tx, err := s.db.Begin()
 	if err != nil {
 		return err
@@ -138,12 +139,12 @@ func (s *Storage) Create(order Order) error {
 			return fmt.Errorf("into items failed: %w", err)
 		}
 	}
-	log.Println("Успешный коммит для БД", order.Orders.OrderUid)
+	slog.Info("order committed to DB", "order_uid", order.Orders.OrderUid)
 	return tx.Commit()
 }
 
-func (s *Storage) GetFromDb(OrderUid string) (Order, error) {
-	var order Order
+func (s *Storage) GetFromDb(OrderUid string) (domain.Order, error) {
+	var order domain.Order
 
 	query := `SELECT * FROM orders WHERE order_uid = $1`
 	err := s.db.Get(&order.Orders, query, OrderUid)
@@ -169,29 +170,29 @@ func (s *Storage) GetFromDb(OrderUid string) (Order, error) {
 		return order, fmt.Errorf("failed to get items: %w", err)
 	}
 
-	log.Println("Order отправлен из БД: %s", order.Orders.OrderUid)
+	slog.Debug("order loaded from DB", "order_uid", order.Orders.OrderUid)
 	return order, nil
 }
 
-func (s *Storage) GetAllOrders() ([]Order, error) {
-	var orders []Order
+func (s *Storage) GetAllOrders() ([]domain.Order, error) {
+	var orders []domain.Order
 
 	orderUidsQuery := `SELECT order_uid FROM orders`
 	var orderUids []string
 	err := s.db.Select(&orderUids, orderUidsQuery)
 	if err != nil {
-		return nil, fmt.Errorf("Не удалось получить список order_uid: %w", err)
+		return nil, fmt.Errorf("failed to get order_uid list: %w", err)
 	}
 
 	for _, orderUid := range orderUids {
 		order, err := s.GetFromDb(orderUid)
 		if err != nil {
-			log.Printf("Не удалось получить заказ из базы %s: %v", orderUid, err)
+			slog.Warn("failed to get order from DB, skipping", "order_uid", orderUid, "error", err)
 			continue
 		}
 		orders = append(orders, order)
 	}
 
-	log.Printf("Было получено из БД %d заказов", len(orders))
+	slog.Info("orders loaded from DB", "count", len(orders))
 	return orders, nil
 }
